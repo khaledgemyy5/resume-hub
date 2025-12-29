@@ -1,73 +1,164 @@
-# Welcome to your Lovable project
+# Ammar Resume - Monorepo
 
-## Project info
+A minimalist, text-first personal resume/portfolio application built with modern tooling.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Architecture Overview
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+ammar-resume/
+├── apps/
+│   ├── web/          # React + Vite + TypeScript (frontend)
+│   └── api/          # Node.js + Express + TypeScript (backend)
+├── packages/
+│   └── shared/       # Shared types, Zod schemas, utilities
+├── infra/            # AWS deployment docs + Terraform skeleton
+├── docker-compose.yml
+└── README.md
 ```
 
-**Edit a file directly in GitHub**
+## Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18, Vite, TypeScript, TailwindCSS |
+| Backend | Node.js, Express, TypeScript |
+| Database | PostgreSQL |
+| Validation | Zod (shared schemas) |
+| Testing | Vitest (web), Jest/Vitest (api) |
+| Deployment | Docker, AWS (ECS/Lambda) |
 
-**Use GitHub Codespaces**
+## Local Development Setup
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Prerequisites
 
-## What technologies are used for this project?
+- Node.js >= 20.x
+- pnpm >= 8.x (recommended) or npm
+- Docker & Docker Compose
+- PostgreSQL 15+ (via Docker)
 
-This project is built with:
+### Environment Variables
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Create `.env` files in each app directory:
 
-## How can I deploy this project?
+**apps/api/.env**
+```env
+NODE_ENV=development
+PORT=3001
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ammar_resume
+JWT_SECRET=your-secret-key-change-in-production
+CORS_ORIGIN=http://localhost:5173
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+**apps/web/.env**
+```env
+VITE_API_URL=http://localhost:3001
+```
 
-## Can I connect a custom domain to my Lovable project?
+### Quick Start
 
-Yes, you can!
+```bash
+# 1. Install dependencies (from root)
+pnpm install
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# 2. Start infrastructure (PostgreSQL)
+docker-compose up -d postgres
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# 3. Run database migrations
+pnpm --filter api db:migrate
+
+# 4. Start development servers
+pnpm dev
+```
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start all apps in development mode |
+| `pnpm build` | Build all apps for production |
+| `pnpm test` | Run all tests |
+| `pnpm lint` | Lint all packages |
+| `pnpm format` | Format code with Prettier |
+| `pnpm typecheck` | Run TypeScript type checking |
+
+### Docker Compose Services
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Start specific service
+docker-compose up -d postgres
+
+# View logs
+docker-compose logs -f api
+
+# Stop all services
+docker-compose down
+```
+
+## Project Structure Details
+
+### apps/web (Frontend)
+
+React SPA with:
+- Vite for fast HMR and optimized builds
+- React Router for client-side routing
+- TailwindCSS for styling
+- Vitest + React Testing Library for tests
+- Code-splitting and lazy loading for performance
+
+### apps/api (Backend)
+
+Express server with:
+- TypeScript for type safety
+- Helmet for security headers
+- Rate limiting via express-rate-limit
+- Zod for input validation
+- JWT authentication for admin routes
+- PostgreSQL via node-postgres (pg)
+
+### packages/shared
+
+Shared code between apps:
+- TypeScript interfaces and types
+- Zod validation schemas
+- Utility functions
+- API response types
+
+## Security Measures
+
+- Helmet.js for HTTP security headers
+- Rate limiting on all endpoints
+- Input validation with Zod schemas
+- JWT-based authentication for admin
+- CORS configuration
+- SQL injection prevention via parameterized queries
+- Environment variable validation at startup
+
+## Performance Optimizations
+
+- Minimal JavaScript bundle (code-splitting)
+- Lazy loading for routes and components
+- Static asset caching headers
+- Gzip/Brotli compression
+- Database connection pooling
+- API response caching where appropriate
+
+## Deployment
+
+See `infra/` directory for:
+- Terraform configurations
+- AWS architecture diagrams
+- Deployment scripts
+- CI/CD pipeline examples
+
+## Lovable Development
+
+This project can also be edited via [Lovable](https://lovable.dev). The `src/` directory contains the React frontend that runs in Lovable's preview.
+
+**Note**: The monorepo structure (apps/api, packages/shared) requires local development with Node.js for full functionality. Lovable only runs the React frontend.
+
+## License
+
+MIT
