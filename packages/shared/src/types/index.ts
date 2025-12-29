@@ -1,123 +1,142 @@
-// Base types for the resume application
+// ============= Enums as String Literals =============
 
-export interface Profile {
-  id: string;
-  name: string;
-  title: string;
-  bio: string;
-  email: string;
-  phone?: string;
-  location?: string;
-  website?: string;
-  linkedin?: string;
-  github?: string;
-  createdAt: Date;
-  updatedAt: Date;
+export type ProjectStatus = 'PUBLIC' | 'CONFIDENTIAL' | 'CONCEPT';
+export type DetailLevel = 'BRIEF' | 'STANDARD' | 'DEEP';
+export type AnalyticsEventType = 'page_view' | 'project_view' | 'writing_view' | 'external_link_click' | 'contact_click';
+export type HomeLayoutSectionType = 'hero' | 'experience' | 'featuredProjects' | 'skills' | 'writing' | 'contactCta';
+
+// ============= Site Settings =============
+
+export interface ThemeTokens {
+  fontPrimary: string;
+  fontSecondary: string;
+  colorBackground: string;
+  colorForeground: string;
+  colorPrimary: string;
+  colorAccent: string;
+  colorMuted: string;
 }
 
-export interface Experience {
+export interface NavItem {
   id: string;
-  profileId: string;
-  company: string;
-  position: string;
-  location?: string;
-  startDate: Date;
-  endDate?: Date;
-  current: boolean;
-  description: string;
-  highlights: string[];
+  label: string;
+  href: string;
+  enabled: boolean;
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
-export interface Education {
+export interface SiteSettings {
   id: string;
-  profileId: string;
-  institution: string;
-  degree: string;
-  field: string;
-  location?: string;
-  startDate: Date;
-  endDate?: Date;
-  gpa?: string;
-  highlights: string[];
-  order: number;
-  createdAt: Date;
-  updatedAt: Date;
+  siteName: string;
+  siteDescription: string;
+  ownerName: string;
+  ownerEmail: string;
+  socialLinks: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+  };
+  theme: ThemeTokens;
+  navigation: NavItem[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Skill {
+// ============= Home Layout =============
+
+export interface HomeLayoutSection {
   id: string;
-  profileId: string;
-  name: string;
-  category: string;
-  proficiency: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  type: HomeLayoutSectionType;
+  enabled: boolean;
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
+  config?: Record<string, unknown>;
+}
+
+export interface HomeLayout {
+  id: string;
+  sections: HomeLayoutSection[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ============= Projects =============
+
+export interface ProjectContent {
+  id: string;
+  projectId: string;
+  detailLevel: DetailLevel;
+  headline: string;
+  summary: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Project {
   id: string;
-  profileId: string;
+  slug: string;
   title: string;
-  description: string;
-  technologies: string[];
-  url?: string;
-  repoUrl?: string;
-  startDate?: Date;
-  endDate?: Date;
+  status: ProjectStatus;
   featured: boolean;
+  tags: string[];
+  thumbnailUrl?: string;
+  startDate?: string;
+  endDate?: string;
+  externalUrl?: string;
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
+  content: ProjectContent[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Certification {
+// ============= Writing =============
+
+export interface WritingItem {
   id: string;
-  profileId: string;
-  name: string;
-  issuer: string;
-  issueDate: Date;
-  expiryDate?: Date;
-  credentialId?: string;
-  credentialUrl?: string;
+  categoryId: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  published: boolean;
+  publishedAt?: string;
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// API Response types
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: ApiError;
-  meta?: ApiMeta;
+export interface WritingCategory {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  order: number;
+  items: WritingItem[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ApiError {
-  code: string;
-  message: string;
-  details?: Record<string, unknown>;
+export interface WritingData {
+  categories: WritingCategory[];
 }
 
-export interface ApiMeta {
+// ============= Analytics =============
+
+export interface AnalyticsEvent {
+  id: string;
+  type: AnalyticsEventType;
+  path: string;
+  referrer?: string;
+  metadata?: Record<string, unknown>;
   timestamp: string;
-  requestId: string;
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
 }
 
-// Auth types
-export interface AuthUser {
+// ============= Auth =============
+
+export interface AdminUser {
   id: string;
   email: string;
-  role: 'admin' | 'viewer';
+  name: string;
 }
 
 export interface AuthTokens {
@@ -131,12 +150,26 @@ export interface LoginCredentials {
   password: string;
 }
 
-// Full resume type
-export interface Resume {
-  profile: Profile;
-  experiences: Experience[];
-  education: Education[];
-  skills: Skill[];
-  projects: Project[];
-  certifications: Certification[];
+// ============= API Response =============
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: ApiError;
 }
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+// ============= Input Types =============
+
+export type SiteSettingsInput = Partial<Omit<SiteSettings, 'id' | 'createdAt' | 'updatedAt'>>;
+export type HomeLayoutInput = { sections: HomeLayoutSection[] };
+export type ProjectInput = Omit<Project, 'id' | 'content' | 'createdAt' | 'updatedAt'>;
+export type ProjectContentInput = Omit<ProjectContent, 'id' | 'createdAt' | 'updatedAt'>;
+export type WritingCategoryInput = Omit<WritingCategory, 'id' | 'items' | 'createdAt' | 'updatedAt'>;
+export type WritingItemInput = Omit<WritingItem, 'id' | 'createdAt' | 'updatedAt'>;
+export type TrackEventInput = Omit<AnalyticsEvent, 'id' | 'timestamp'>;

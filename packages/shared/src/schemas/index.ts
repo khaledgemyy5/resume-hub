@@ -1,167 +1,228 @@
 import { z } from 'zod';
 
-// Profile schemas
-export const profileSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  title: z.string().min(1).max(200),
-  bio: z.string().max(2000),
-  email: z.string().email(),
-  phone: z.string().max(20).optional(),
-  location: z.string().max(100).optional(),
-  website: z.string().url().optional(),
-  linkedin: z.string().url().optional(),
-  github: z.string().url().optional(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+// ============= Enums =============
+
+export const projectStatusSchema = z.enum(['PUBLIC', 'CONFIDENTIAL', 'CONCEPT']);
+export const detailLevelSchema = z.enum(['BRIEF', 'STANDARD', 'DEEP']);
+export const analyticsEventTypeSchema = z.enum([
+  'page_view',
+  'project_view',
+  'writing_view',
+  'external_link_click',
+  'contact_click',
+]);
+export const homeLayoutSectionTypeSchema = z.enum([
+  'hero',
+  'experience',
+  'featuredProjects',
+  'skills',
+  'writing',
+  'contactCta',
+]);
+
+// ============= Theme & Nav =============
+
+export const themeTokensSchema = z.object({
+  fontPrimary: z.string().min(1),
+  fontSecondary: z.string().min(1),
+  colorBackground: z.string().min(1),
+  colorForeground: z.string().min(1),
+  colorPrimary: z.string().min(1),
+  colorAccent: z.string().min(1),
+  colorMuted: z.string().min(1),
 });
 
-export const createProfileSchema = profileSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const updateProfileSchema = createProfileSchema.partial();
-
-// Experience schemas
-export const experienceSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
-  company: z.string().min(1).max(200),
-  position: z.string().min(1).max(200),
-  location: z.string().max(100).optional(),
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date().optional(),
-  current: z.boolean().default(false),
-  description: z.string().max(2000),
-  highlights: z.array(z.string().max(500)),
+export const navItemSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1).max(50),
+  href: z.string().min(1),
+  enabled: z.boolean(),
   order: z.number().int().min(0),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 
-export const createExperienceSchema = experienceSchema.omit({
+// ============= Site Settings =============
+
+export const siteSettingsSchema = z.object({
+  id: z.string().min(1),
+  siteName: z.string().min(1).max(100),
+  siteDescription: z.string().max(500),
+  ownerName: z.string().min(1).max(100),
+  ownerEmail: z.string().email(),
+  socialLinks: z.object({
+    github: z.string().url().optional(),
+    linkedin: z.string().url().optional(),
+    twitter: z.string().url().optional(),
+  }),
+  theme: themeTokensSchema,
+  navigation: z.array(navItemSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const updateSiteSettingsSchema = siteSettingsSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-});
+}).partial();
 
-export const updateExperienceSchema = createExperienceSchema.partial();
+// ============= Home Layout =============
 
-// Education schemas
-export const educationSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
-  institution: z.string().min(1).max(200),
-  degree: z.string().min(1).max(200),
-  field: z.string().min(1).max(200),
-  location: z.string().max(100).optional(),
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date().optional(),
-  gpa: z.string().max(10).optional(),
-  highlights: z.array(z.string().max(500)),
+export const homeLayoutSectionSchema = z.object({
+  id: z.string().min(1),
+  type: homeLayoutSectionTypeSchema,
+  enabled: z.boolean(),
   order: z.number().int().min(0),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  config: z.record(z.unknown()).optional(),
 });
 
-export const createEducationSchema = educationSchema.omit({
+export const homeLayoutSchema = z.object({
+  id: z.string().min(1),
+  sections: z.array(homeLayoutSectionSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const updateHomeLayoutSchema = z.object({
+  sections: z.array(homeLayoutSectionSchema),
+});
+
+// ============= Project Content =============
+
+export const projectContentSchema = z.object({
+  id: z.string().min(1),
+  projectId: z.string().min(1),
+  detailLevel: detailLevelSchema,
+  headline: z.string().min(1).max(200),
+  summary: z.string().max(500),
+  body: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const createProjectContentSchema = projectContentSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const updateEducationSchema = createEducationSchema.partial();
+export const updateProjectContentSchema = createProjectContentSchema.partial();
 
-// Skill schemas
-export const proficiencyEnum = z.enum(['beginner', 'intermediate', 'advanced', 'expert']);
+// ============= Project =============
 
-export const skillSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  category: z.string().min(1).max(100),
-  proficiency: proficiencyEnum,
-  order: z.number().int().min(0),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-});
-
-export const createSkillSchema = skillSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const updateSkillSchema = createSkillSchema.partial();
-
-// Project schemas
 export const projectSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
+  id: z.string().min(1),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
   title: z.string().min(1).max(200),
-  description: z.string().max(2000),
-  technologies: z.array(z.string().max(50)),
-  url: z.string().url().optional(),
-  repoUrl: z.string().url().optional(),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
-  featured: z.boolean().default(false),
+  status: projectStatusSchema,
+  featured: z.boolean(),
+  tags: z.array(z.string().max(50)),
+  thumbnailUrl: z.string().url().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  externalUrl: z.string().url().optional(),
   order: z.number().int().min(0),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  content: z.array(projectContentSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const createProjectSchema = projectSchema.omit({
   id: true,
+  content: true,
   createdAt: true,
   updatedAt: true,
 });
 
 export const updateProjectSchema = createProjectSchema.partial();
 
-// Certification schemas
-export const certificationSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
-  name: z.string().min(1).max(200),
-  issuer: z.string().min(1).max(200),
-  issueDate: z.coerce.date(),
-  expiryDate: z.coerce.date().optional(),
-  credentialId: z.string().max(100).optional(),
-  credentialUrl: z.string().url().optional(),
+// ============= Writing Item =============
+
+export const writingItemSchema = z.object({
+  id: z.string().min(1),
+  categoryId: z.string().min(1),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  title: z.string().min(1).max(200),
+  excerpt: z.string().max(500),
+  body: z.string(),
+  published: z.boolean(),
+  publishedAt: z.string().optional(),
   order: z.number().int().min(0),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
-export const createCertificationSchema = certificationSchema.omit({
+export const createWritingItemSchema = writingItemSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const updateCertificationSchema = createCertificationSchema.partial();
+export const updateWritingItemSchema = createWritingItemSchema.partial();
 
-// Auth schemas
-export const loginSchema = z.object({
+// ============= Writing Category =============
+
+export const writingCategorySchema = z.object({
+  id: z.string().min(1),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  order: z.number().int().min(0),
+  items: z.array(writingItemSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const createWritingCategorySchema = writingCategorySchema.omit({
+  id: true,
+  items: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateWritingCategorySchema = createWritingCategorySchema.partial();
+
+// ============= Writing Data =============
+
+export const writingDataSchema = z.object({
+  categories: z.array(writingCategorySchema),
+});
+
+// ============= Analytics Event =============
+
+export const analyticsEventSchema = z.object({
+  id: z.string().min(1),
+  type: analyticsEventTypeSchema,
+  path: z.string().min(1),
+  referrer: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  timestamp: z.string(),
+});
+
+export const trackEventSchema = analyticsEventSchema.omit({
+  id: true,
+  timestamp: true,
+});
+
+// ============= Auth =============
+
+export const loginCredentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(100),
 });
 
-// Query schemas
-export const paginationSchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+export const adminUserSchema = z.object({
+  id: z.string().min(1),
+  email: z.string().email(),
+  name: z.string().min(1).max(100),
 });
 
-// Export types inferred from schemas
-export type ProfileInput = z.infer<typeof createProfileSchema>;
-export type ExperienceInput = z.infer<typeof createExperienceSchema>;
-export type EducationInput = z.infer<typeof createEducationSchema>;
-export type SkillInput = z.infer<typeof createSkillSchema>;
+// ============= Inferred Types =============
+
+export type SiteSettingsInput = z.infer<typeof updateSiteSettingsSchema>;
+export type HomeLayoutInput = z.infer<typeof updateHomeLayoutSchema>;
 export type ProjectInput = z.infer<typeof createProjectSchema>;
-export type CertificationInput = z.infer<typeof createCertificationSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
-export type PaginationInput = z.infer<typeof paginationSchema>;
+export type ProjectContentInput = z.infer<typeof createProjectContentSchema>;
+export type WritingCategoryInput = z.infer<typeof createWritingCategorySchema>;
+export type WritingItemInput = z.infer<typeof createWritingItemSchema>;
+export type TrackEventInput = z.infer<typeof trackEventSchema>;
+export type LoginInput = z.infer<typeof loginCredentialsSchema>;
