@@ -1,4 +1,22 @@
-import type { DataClient, TrackEventInput } from './types';
+import type {
+  DataClient,
+  SiteSettings,
+  HomeLayout,
+  Project,
+  ProjectContent,
+  WritingData,
+  WritingCategory,
+  WritingItem,
+  AuthTokens,
+  AdminUser,
+  SiteSettingsInput,
+  HomeLayoutInput,
+  ProjectInput,
+  ProjectContentInput,
+  WritingCategoryInput,
+  WritingItemInput,
+  TrackEventInput,
+} from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -9,37 +27,51 @@ export class HttpDataClient implements DataClient {
       headers: { 'Content-Type': 'application/json', ...options?.headers },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    return res.json() as Promise<T>;
   }
 
-  async getPublicSettings() { return this.request('/settings'); }
-  async getHomeLayout() { return this.request('/home-layout'); }
-  async getPublishedProjects() { return this.request('/projects'); }
-  async getProjectBySlug(slug: string) { return this.request(`/projects/${slug}`); }
-  async getWritingData() { return this.request('/writing'); }
-  async trackEvent(event: TrackEventInput) { await this.request('/events', { method: 'POST', body: JSON.stringify(event) }); }
+  // Public methods
+  getPublicSettings(): Promise<SiteSettings> { return this.request<SiteSettings>('/settings'); }
+  getHomeLayout(): Promise<HomeLayout> { return this.request<HomeLayout>('/home-layout'); }
+  getPublishedProjects(): Promise<Project[]> { return this.request<Project[]>('/projects'); }
+  getProjectBySlug(slug: string): Promise<Project | null> { return this.request<Project | null>(`/projects/${slug}`); }
+  getWritingData(): Promise<WritingData> { return this.request<WritingData>('/writing'); }
+  async trackEvent(event: TrackEventInput): Promise<void> { await this.request<void>('/events', { method: 'POST', body: JSON.stringify(event) }); }
 
-  async adminLogin(email: string, password: string) { return this.request('/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) }); }
-  async adminLogout() { await this.request('/admin/logout', { method: 'POST' }); }
-  async adminMe() { return this.request('/admin/me'); }
-  async adminGetSettings() { return this.request('/admin/settings'); }
-  async adminUpdateSettings(data: unknown) { return this.request('/admin/settings', { method: 'PUT', body: JSON.stringify(data) }); }
-  async adminGetHomeLayout() { return this.request('/admin/home-layout'); }
-  async adminUpdateHomeLayout(data: unknown) { return this.request('/admin/home-layout', { method: 'PUT', body: JSON.stringify(data) }); }
-  async adminGetProjects() { return this.request('/admin/projects'); }
-  async adminGetProject(id: string) { return this.request(`/admin/projects/${id}`); }
-  async adminCreateProject(data: unknown) { return this.request('/admin/projects', { method: 'POST', body: JSON.stringify(data) }); }
-  async adminUpdateProject(id: string, data: unknown) { return this.request(`/admin/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
-  async adminDeleteProject(id: string) { await this.request(`/admin/projects/${id}`, { method: 'DELETE' }); }
-  async adminCreateProjectContent(projectId: string, data: unknown) { return this.request(`/admin/projects/${projectId}/content`, { method: 'POST', body: JSON.stringify(data) }); }
-  async adminUpdateProjectContent(id: string, data: unknown) { return this.request(`/admin/content/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
-  async adminDeleteProjectContent(id: string) { await this.request(`/admin/content/${id}`, { method: 'DELETE' }); }
-  async adminGetWritingCategories() { return this.request('/admin/writing/categories'); }
-  async adminGetWritingCategory(id: string) { return this.request(`/admin/writing/categories/${id}`); }
-  async adminCreateWritingCategory(data: unknown) { return this.request('/admin/writing/categories', { method: 'POST', body: JSON.stringify(data) }); }
-  async adminUpdateWritingCategory(id: string, data: unknown) { return this.request(`/admin/writing/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
-  async adminDeleteWritingCategory(id: string) { await this.request(`/admin/writing/categories/${id}`, { method: 'DELETE' }); }
-  async adminCreateWritingItem(categoryId: string, data: unknown) { return this.request(`/admin/writing/categories/${categoryId}/items`, { method: 'POST', body: JSON.stringify(data) }); }
-  async adminUpdateWritingItem(id: string, data: unknown) { return this.request(`/admin/writing/items/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
-  async adminDeleteWritingItem(id: string) { await this.request(`/admin/writing/items/${id}`, { method: 'DELETE' }); }
+  // Admin auth
+  adminLogin(email: string, password: string): Promise<AuthTokens> { return this.request<AuthTokens>('/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) }); }
+  async adminLogout(): Promise<void> { await this.request<void>('/admin/logout', { method: 'POST' }); }
+  adminMe(): Promise<AdminUser | null> { return this.request<AdminUser | null>('/admin/me'); }
+
+  // Admin settings
+  adminGetSettings(): Promise<SiteSettings> { return this.request<SiteSettings>('/admin/settings'); }
+  adminUpdateSettings(data: SiteSettingsInput): Promise<SiteSettings> { return this.request<SiteSettings>('/admin/settings', { method: 'PUT', body: JSON.stringify(data) }); }
+
+  // Admin home layout
+  adminGetHomeLayout(): Promise<HomeLayout> { return this.request<HomeLayout>('/admin/home-layout'); }
+  adminUpdateHomeLayout(data: HomeLayoutInput): Promise<HomeLayout> { return this.request<HomeLayout>('/admin/home-layout', { method: 'PUT', body: JSON.stringify(data) }); }
+
+  // Admin projects
+  adminGetProjects(): Promise<Project[]> { return this.request<Project[]>('/admin/projects'); }
+  adminGetProject(id: string): Promise<Project | null> { return this.request<Project | null>(`/admin/projects/${id}`); }
+  adminCreateProject(data: ProjectInput): Promise<Project> { return this.request<Project>('/admin/projects', { method: 'POST', body: JSON.stringify(data) }); }
+  adminUpdateProject(id: string, data: Partial<ProjectInput>): Promise<Project> { return this.request<Project>(`/admin/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+  async adminDeleteProject(id: string): Promise<void> { await this.request<void>(`/admin/projects/${id}`, { method: 'DELETE' }); }
+
+  // Admin project content
+  adminCreateProjectContent(projectId: string, data: ProjectContentInput): Promise<ProjectContent> { return this.request<ProjectContent>(`/admin/projects/${projectId}/content`, { method: 'POST', body: JSON.stringify(data) }); }
+  adminUpdateProjectContent(id: string, data: Partial<ProjectContentInput>): Promise<ProjectContent> { return this.request<ProjectContent>(`/admin/content/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+  async adminDeleteProjectContent(id: string): Promise<void> { await this.request<void>(`/admin/content/${id}`, { method: 'DELETE' }); }
+
+  // Admin writing categories
+  adminGetWritingCategories(): Promise<WritingCategory[]> { return this.request<WritingCategory[]>('/admin/writing/categories'); }
+  adminGetWritingCategory(id: string): Promise<WritingCategory | null> { return this.request<WritingCategory | null>(`/admin/writing/categories/${id}`); }
+  adminCreateWritingCategory(data: WritingCategoryInput): Promise<WritingCategory> { return this.request<WritingCategory>('/admin/writing/categories', { method: 'POST', body: JSON.stringify(data) }); }
+  adminUpdateWritingCategory(id: string, data: Partial<WritingCategoryInput>): Promise<WritingCategory> { return this.request<WritingCategory>(`/admin/writing/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+  async adminDeleteWritingCategory(id: string): Promise<void> { await this.request<void>(`/admin/writing/categories/${id}`, { method: 'DELETE' }); }
+
+  // Admin writing items
+  adminCreateWritingItem(categoryId: string, data: WritingItemInput): Promise<WritingItem> { return this.request<WritingItem>(`/admin/writing/categories/${categoryId}/items`, { method: 'POST', body: JSON.stringify(data) }); }
+  adminUpdateWritingItem(id: string, data: Partial<WritingItemInput>): Promise<WritingItem> { return this.request<WritingItem>(`/admin/writing/items/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+  async adminDeleteWritingItem(id: string): Promise<void> { await this.request<void>(`/admin/writing/items/${id}`, { method: 'DELETE' }); }
 }
