@@ -3,6 +3,7 @@ import type {
   SiteSettings,
   HomeLayout,
   HomeLayoutSection,
+  NavItem,
   Project,
   ProjectContent,
   WritingData,
@@ -215,7 +216,17 @@ export class MockDataClient implements DataClient {
 
   async adminUpdateSettings(data: SiteSettingsInput): Promise<SiteSettings> {
     const current = await this.adminGetSettings();
-    const updated = { ...current, ...data, updatedAt: now() };
+    const updated: SiteSettings = {
+      ...current,
+      ...(data.siteName !== undefined && { siteName: data.siteName }),
+      ...(data.siteDescription !== undefined && { siteDescription: data.siteDescription }),
+      ...(data.ownerName !== undefined && { ownerName: data.ownerName }),
+      ...(data.ownerEmail !== undefined && { ownerEmail: data.ownerEmail }),
+      ...(data.socialLinks !== undefined && { socialLinks: data.socialLinks }),
+      ...(data.theme !== undefined && { theme: { ...current.theme, ...data.theme } }),
+      ...(data.navigation !== undefined && { navigation: data.navigation as NavItem[] }),
+      updatedAt: now(),
+    };
     setToStorage(KEYS.settings, updated);
     return updated;
   }
@@ -224,7 +235,11 @@ export class MockDataClient implements DataClient {
 
   async adminUpdateHomeLayout(data: HomeLayoutInput): Promise<HomeLayout> {
     const current = await this.adminGetHomeLayout();
-    const updated = { ...current, sections: data.sections, updatedAt: now() };
+    const updated: HomeLayout = { 
+      ...current, 
+      sections: data.sections as HomeLayoutSection[], 
+      updatedAt: now() 
+    };
     setToStorage(KEYS.homeLayout, updated);
     return updated;
   }
@@ -238,7 +253,22 @@ export class MockDataClient implements DataClient {
 
   async adminCreateProject(data: ProjectInput): Promise<Project> {
     const timestamp = now();
-    const project: Project = { id: generateId(), ...data, content: [], createdAt: timestamp, updatedAt: timestamp };
+    const project: Project = {
+      id: generateId(),
+      slug: data.slug,
+      title: data.title,
+      status: data.status,
+      featured: data.featured,
+      tags: data.tags,
+      thumbnailUrl: data.thumbnailUrl,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      externalUrl: data.externalUrl,
+      order: data.order,
+      content: [],
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
     const projects = await this.adminGetProjects();
     projects.push(project);
     setToStorage(KEYS.projects, projects);
@@ -264,7 +294,16 @@ export class MockDataClient implements DataClient {
     const index = projects.findIndex((p) => p.id === projectId);
     if (index === -1) throw new Error('Project not found');
     const timestamp = now();
-    const content: ProjectContent = { id: generateId(), ...data, createdAt: timestamp, updatedAt: timestamp };
+    const content: ProjectContent = {
+      id: generateId(),
+      projectId: data.projectId,
+      detailLevel: data.detailLevel,
+      headline: data.headline,
+      summary: data.summary,
+      body: data.body,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
     projects[index].content.push(content);
     projects[index].updatedAt = timestamp;
     setToStorage(KEYS.projects, projects);
@@ -311,7 +350,16 @@ export class MockDataClient implements DataClient {
   async adminCreateWritingCategory(data: WritingCategoryInput): Promise<WritingCategory> {
     const writingData = await this.getWritingData();
     const timestamp = now();
-    const category: WritingCategory = { id: generateId(), ...data, items: [], createdAt: timestamp, updatedAt: timestamp };
+    const category: WritingCategory = {
+      id: generateId(),
+      slug: data.slug,
+      name: data.name,
+      description: data.description,
+      order: data.order,
+      items: [],
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
     writingData.categories.push(category);
     setToStorage(KEYS.writing, writingData);
     return category;
@@ -337,7 +385,19 @@ export class MockDataClient implements DataClient {
     const catIndex = writingData.categories.findIndex((c) => c.id === categoryId);
     if (catIndex === -1) throw new Error('Category not found');
     const timestamp = now();
-    const item: WritingItem = { id: generateId(), ...data, createdAt: timestamp, updatedAt: timestamp };
+    const item: WritingItem = {
+      id: generateId(),
+      categoryId: data.categoryId,
+      slug: data.slug,
+      title: data.title,
+      excerpt: data.excerpt,
+      body: data.body,
+      published: data.published,
+      publishedAt: data.publishedAt,
+      order: data.order,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
     writingData.categories[catIndex].items.push(item);
     writingData.categories[catIndex].updatedAt = timestamp;
     setToStorage(KEYS.writing, writingData);

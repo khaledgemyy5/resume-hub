@@ -59,7 +59,7 @@ export const siteSettingsSchema = z.object({
   updatedAt: z.string(),
 });
 
-export const updateSiteSettingsSchema = siteSettingsSchema.omit({
+export const siteSettingsInputSchema = siteSettingsSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -82,7 +82,7 @@ export const homeLayoutSchema = z.object({
   updatedAt: z.string(),
 });
 
-export const updateHomeLayoutSchema = z.object({
+export const homeLayoutInputSchema = z.object({
   sections: z.array(homeLayoutSectionSchema),
 });
 
@@ -99,13 +99,11 @@ export const projectContentSchema = z.object({
   updatedAt: z.string(),
 });
 
-export const createProjectContentSchema = projectContentSchema.omit({
+export const projectContentInputSchema = projectContentSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
-
-export const updateProjectContentSchema = createProjectContentSchema.partial();
 
 // ============= Project =============
 
@@ -126,14 +124,12 @@ export const projectSchema = z.object({
   updatedAt: z.string(),
 });
 
-export const createProjectSchema = projectSchema.omit({
+export const projectInputSchema = projectSchema.omit({
   id: true,
   content: true,
   createdAt: true,
   updatedAt: true,
 });
-
-export const updateProjectSchema = createProjectSchema.partial();
 
 // ============= Writing Item =============
 
@@ -151,13 +147,11 @@ export const writingItemSchema = z.object({
   updatedAt: z.string(),
 });
 
-export const createWritingItemSchema = writingItemSchema.omit({
+export const writingItemInputSchema = writingItemSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
-
-export const updateWritingItemSchema = createWritingItemSchema.partial();
 
 // ============= Writing Category =============
 
@@ -172,14 +166,12 @@ export const writingCategorySchema = z.object({
   updatedAt: z.string(),
 });
 
-export const createWritingCategorySchema = writingCategorySchema.omit({
+export const writingCategoryInputSchema = writingCategorySchema.omit({
   id: true,
   items: true,
   createdAt: true,
   updatedAt: true,
 });
-
-export const updateWritingCategorySchema = createWritingCategorySchema.partial();
 
 // ============= Writing Data =============
 
@@ -218,11 +210,11 @@ export const adminUserSchema = z.object({
 
 // ============= Inferred Types =============
 
-export type SiteSettingsInput = z.infer<typeof updateSiteSettingsSchema>;
-export type HomeLayoutInput = z.infer<typeof updateHomeLayoutSchema>;
-export type ProjectInput = z.infer<typeof createProjectSchema>;
-export type ProjectContentInput = z.infer<typeof createProjectContentSchema>;
-export type WritingCategoryInput = z.infer<typeof createWritingCategorySchema>;
-export type WritingItemInput = z.infer<typeof createWritingItemSchema>;
+export type SiteSettingsInput = z.infer<typeof siteSettingsInputSchema>;
+export type HomeLayoutInput = z.infer<typeof homeLayoutInputSchema>;
+export type ProjectInput = z.infer<typeof projectInputSchema>;
+export type ProjectContentInput = z.infer<typeof projectContentInputSchema>;
+export type WritingCategoryInput = z.infer<typeof writingCategoryInputSchema>;
+export type WritingItemInput = z.infer<typeof writingItemInputSchema>;
 export type TrackEventInput = z.infer<typeof trackEventSchema>;
 export type LoginInput = z.infer<typeof loginCredentialsSchema>;

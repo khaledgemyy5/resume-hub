@@ -164,12 +164,4 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
-// ============= Input Types =============
-
-export type SiteSettingsInput = Partial<Omit<SiteSettings, 'id' | 'createdAt' | 'updatedAt'>>;
-export type HomeLayoutInput = { sections: HomeLayoutSection[] };
-export type ProjectInput = Omit<Project, 'id' | 'content' | 'createdAt' | 'updatedAt'>;
-export type ProjectContentInput = Omit<ProjectContent, 'id' | 'createdAt' | 'updatedAt'>;
-export type WritingCategoryInput = Omit<WritingCategory, 'id' | 'items' | 'createdAt' | 'updatedAt'>;
-export type WritingItemInput = Omit<WritingItem, 'id' | 'createdAt' | 'updatedAt'>;
-export type TrackEventInput = Omit<AnalyticsEvent, 'id' | 'timestamp'>;
+// Note: Input types are defined in schemas/index.ts via Zod inference
