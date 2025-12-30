@@ -1,50 +1,80 @@
+import { useEffect, useState } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { dataClient } from '@/data';
+import type { HomeLayout, HomeLayoutSection } from '@/data/types';
+import {
+  HeroSection,
+  ExperienceSection,
+  FeaturedProjectsSection,
+  HowIWorkSection,
+  MetricsSection,
+  AvailabilitySection,
+  WritingSection,
+  ContactCtaSection,
+} from '@/components/home';
 
 export default function HomePage() {
-  const { settings } = useSettings();
+  const { settings, writingData } = useSettings();
+  const [homeLayout, setHomeLayout] = useState<HomeLayout | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadHomeLayout() {
+      try {
+        const layout = await dataClient.getHomeLayout();
+        setHomeLayout(layout);
+      } catch (error) {
+        console.error('Failed to load home layout:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadHomeLayout();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="container-prose py-16 md:py-24">
+        <div className="space-y-8">
+          <div className="h-32 bg-muted animate-pulse rounded" />
+          <div className="h-24 bg-muted animate-pulse rounded" />
+          <div className="h-48 bg-muted animate-pulse rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  // Get enabled sections, sorted by order
+  const enabledSections = (homeLayout?.sections || [])
+    .filter(section => section.enabled)
+    .sort((a, b) => a.order - b.order);
+
+  const renderSection = (section: HomeLayoutSection) => {
+    switch (section.type) {
+      case 'hero':
+        return <HeroSection key={section.id} section={section} ownerName={settings?.ownerName} />;
+      case 'experience':
+        return <ExperienceSection key={section.id} section={section} />;
+      case 'featuredProjects':
+        return <FeaturedProjectsSection key={section.id} section={section} />;
+      case 'howIWork':
+        return <HowIWorkSection key={section.id} section={section} />;
+      case 'metrics':
+        return <MetricsSection key={section.id} section={section} />;
+      case 'availability':
+        return <AvailabilitySection key={section.id} section={section} />;
+      case 'writing':
+        return <WritingSection key={section.id} section={section} writingData={writingData} />;
+      case 'contactCta':
+        return <ContactCtaSection key={section.id} section={section} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="container-prose py-16 md:py-24">
-      {/* Hero Section */}
-      <section className="mb-16">
-        <h1 className="font-display mb-4">
-          {settings?.ownerName ?? 'Hello'}
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-xl">
-          {settings?.siteDescription ?? 'A minimalist personal portfolio and resume site.'}
-        </p>
-      </section>
-
-      {/* Quick Links */}
-      <section className="space-y-6">
-        <div className="flex flex-col gap-3">
-          <Link 
-            to="/projects" 
-            className="group flex items-center gap-2 text-foreground hover:text-muted-foreground transition-colors"
-          >
-            <span className="text-lg">View Projects</span>
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-          
-          <Link 
-            to="/resume" 
-            className="group flex items-center gap-2 text-foreground hover:text-muted-foreground transition-colors"
-          >
-            <span className="text-lg">Read Resume</span>
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-          
-          <Link 
-            to="/contact" 
-            className="group flex items-center gap-2 text-foreground hover:text-muted-foreground transition-colors"
-          >
-            <span className="text-lg">Get in Touch</span>
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </section>
+      {enabledSections.map(renderSection)}
     </div>
   );
 }
