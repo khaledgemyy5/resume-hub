@@ -1,101 +1,91 @@
 import { useSettings } from '@/contexts/SettingsContext';
-import { Button, Input } from '@/components/ui-kit';
-import { Mail, Github, Linkedin, Twitter } from 'lucide-react';
+import { Seo } from '@/components/seo';
+import { Mail, Linkedin, Calendar, ExternalLink } from 'lucide-react';
 
 export default function ContactPage() {
   const { settings } = useSettings();
   const socialLinks = settings?.socialLinks ?? {};
 
   return (
-    <div className="container-prose py-16 md:py-24">
-      <h1 className="mb-2">Contact</h1>
-      <p className="text-muted-foreground mb-12">
-        Get in touch for opportunities or just to say hello.
-      </p>
+    <>
+      <Seo title="Contact" description={`Get in touch with ${settings?.ownerName ?? 'me'}`} />
+      
+      <div className="container-prose py-16 md:py-24">
+        <h1 className="mb-2">Contact</h1>
+        <p className="text-muted-foreground mb-12">
+          Get in touch for opportunities or just to say hello.
+        </p>
 
-      {/* Email */}
-      <section className="mb-12">
-        <a
-          href={`mailto:${settings?.ownerEmail ?? 'hello@example.com'}`}
-          className="group flex items-center gap-3 text-lg hover:text-muted-foreground transition-colors"
-        >
-          <Mail size={20} />
-          <span>{settings?.ownerEmail ?? 'hello@example.com'}</span>
-        </a>
-      </section>
+        {/* Primary Contact Methods */}
+        <section className="space-y-4 mb-12">
+          {/* Email */}
+          <a
+            href={`mailto:${settings?.ownerEmail ?? 'hello@example.com'}`}
+            className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-foreground/30 transition-colors group"
+          >
+            <Mail size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+            <div>
+              <div className="font-medium">Email</div>
+              <div className="text-sm text-muted-foreground">{settings?.ownerEmail ?? 'hello@example.com'}</div>
+            </div>
+          </a>
 
-      {/* Social Links */}
-      {(socialLinks.github || socialLinks.linkedin || socialLinks.twitter) && (
-        <section className="mb-12">
-          <h2 className="text-lg font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
-            Elsewhere
-          </h2>
-          
-          <div className="flex flex-col gap-3">
-            {socialLinks.github && (
-              <a
-                href={socialLinks.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Github size={18} />
-                <span>GitHub</span>
-              </a>
-            )}
-            {socialLinks.linkedin && (
-              <a
-                href={socialLinks.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Linkedin size={18} />
-                <span>LinkedIn</span>
-              </a>
-            )}
-            {socialLinks.twitter && (
-              <a
-                href={socialLinks.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Twitter size={18} />
-                <span>Twitter</span>
-              </a>
-            )}
-          </div>
+          {/* LinkedIn */}
+          {socialLinks.linkedin && (
+            <a
+              href={socialLinks.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-foreground/30 transition-colors group"
+            >
+              <Linkedin size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+              <div>
+                <div className="font-medium">LinkedIn</div>
+                <div className="text-sm text-muted-foreground">Connect with me</div>
+              </div>
+            </a>
+          )}
+
+          {/* Calendar */}
+          {settings?.calendarUrl && (
+            <a
+              href={settings.calendarUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-foreground/30 transition-colors group"
+            >
+              <Calendar size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+              <div>
+                <div className="font-medium">Schedule a Call</div>
+                <div className="text-sm text-muted-foreground">Book time on my calendar</div>
+              </div>
+            </a>
+          )}
         </section>
-      )}
 
-      {/* Simple Contact Form Placeholder */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
-          Send a Message
-        </h2>
-        
-        <form className="space-y-4 max-w-md" onSubmit={(e) => e.preventDefault()}>
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
-            <Input id="name" placeholder="Your name" />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-            <Input id="email" type="email" placeholder="your@email.com" />
-          </div>
-          <div>
-            <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
-            <textarea
-              id="message"
-              rows={4}
-              placeholder="Your message..."
-              className="flex w-full rounded border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          </div>
-          <Button type="submit">Send Message</Button>
-        </form>
-      </section>
-    </div>
+        {/* External Links */}
+        {settings?.externalLinks && settings.externalLinks.length > 0 && (
+          <section>
+            <h2 className="text-lg font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
+              Elsewhere
+            </h2>
+            <div className="space-y-2">
+              {settings.externalLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors py-2"
+                >
+                  <ExternalLink size={16} />
+                  <span>{link.label}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </>
   );
 }

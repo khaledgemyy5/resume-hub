@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { dataClient } from '@/data';
 import type { Project, ProjectContent, ProjectMedia } from '@/data/types';
 import { Badge } from '@/components/ui-kit';
+import { Seo } from '@/components/seo';
 import { ArrowLeft, ExternalLink, AlertTriangle } from 'lucide-react';
 
 interface SectionProps {
@@ -177,14 +178,19 @@ export default function ProjectDetailPage() {
   const media = content?.media?.slice(0, 3).sort((a, b) => a.order - b.order);
 
   return (
-    <div className="container-prose py-16 md:py-24">
-      {/* Back link */}
-      <Link 
-        to="/projects" 
-        className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 mb-8"
-      >
-        <ArrowLeft size={14} /> All Projects
-      </Link>
+    <>
+      <Seo 
+        title={project.title} 
+        description={content?.headline || content?.summary || `Project: ${project.title}`} 
+      />
+      <div className="container-prose py-16 md:py-24">
+        {/* Back link */}
+        <Link 
+          to="/projects" 
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 mb-8"
+        >
+          <ArrowLeft size={14} /> All Projects
+        </Link>
 
       {/* Confidential Banner */}
       {project.status === 'CONFIDENTIAL' && (
@@ -263,10 +269,10 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
-      {/* Related Projects */}
-      {project.relatedProjectSlugs && project.relatedProjectSlugs.length > 0 && (
-        <RelatedProjects slugs={project.relatedProjectSlugs} currentSlug={project.slug} />
-      )}
-    </div>
+        {project.relatedProjectSlugs && project.relatedProjectSlugs.length > 0 && (
+          <RelatedProjects slugs={project.relatedProjectSlugs} currentSlug={project.slug} />
+        )}
+      </div>
+    </>
   );
 }

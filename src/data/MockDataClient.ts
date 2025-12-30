@@ -60,6 +60,7 @@ function createDefaultSettings(): SiteSettings {
     siteDescription: 'A minimalist personal portfolio and resume site.',
     ownerName: 'Ammar',
     ownerEmail: 'hello@example.com',
+    ownerTitle: 'Software Engineer',
     socialLinks: { github: 'https://github.com', linkedin: 'https://linkedin.com' },
     theme: {
       fontPrimary: 'system-ui, -apple-system, sans-serif',
@@ -73,8 +74,32 @@ function createDefaultSettings(): SiteSettings {
     navigation: [
       { id: 'nav-home', label: 'Home', href: '/', enabled: true, order: 0 },
       { id: 'nav-projects', label: 'Projects', href: '/projects', enabled: true, order: 1 },
-      { id: 'nav-writing', label: 'Writing', href: '/writing', enabled: false, order: 2 },
-      { id: 'nav-contact', label: 'Contact', href: '/contact', enabled: true, order: 3 },
+      { id: 'nav-resume', label: 'Resume', href: '/resume', enabled: true, order: 2 },
+      { id: 'nav-writing', label: 'Writing', href: '/writing', enabled: false, order: 3 },
+      { id: 'nav-contact', label: 'Contact', href: '/contact', enabled: true, order: 4 },
+    ],
+    seoDefaults: {
+      title: 'Ammar | Software Engineer',
+      description: 'A minimalist personal portfolio and resume site.',
+    },
+    faviconUrl: '/favicon.ico',
+    resumePdfUrl: '/resume.pdf',
+    calendarUrl: 'https://cal.com/ammar',
+    resumeData: {
+      experience: [
+        { title: 'Senior Software Engineer', company: 'TechCorp', period: '2021 – Present', description: 'Leading frontend architecture and design system development for enterprise products.' },
+        { title: 'Full Stack Developer', company: 'StartupXYZ', period: '2018 – 2021', description: 'Built and scaled a SaaS platform from 0 to 50k users.' },
+        { title: 'Frontend Developer', company: 'Agency Co', period: '2016 – 2018', description: 'Developed responsive web applications for various clients.' },
+      ],
+      skills: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'AWS', 'GraphQL', 'Tailwind CSS', 'Next.js'],
+      education: [
+        { degree: 'B.S. Computer Science', institution: 'University of Technology', period: '2012 – 2016' },
+      ],
+      certifications: ['AWS Solutions Architect', 'Google Cloud Professional'],
+    },
+    externalLinks: [
+      { id: 'link-1', label: 'Blog', url: 'https://blog.example.com' },
+      { id: 'link-2', label: 'Dribbble', url: 'https://dribbble.com/ammar' },
     ],
     createdAt: timestamp,
     updatedAt: timestamp,

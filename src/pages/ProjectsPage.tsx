@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { dataClient } from '@/data';
 import type { Project } from '@/data/types';
 import { Badge } from '@/components/ui-kit';
+import { Seo } from '@/components/seo';
 import { ArrowRight } from 'lucide-react';
 
 export default function ProjectsPage() {
@@ -44,11 +45,13 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="container-prose py-16 md:py-24">
-      <h1 className="mb-2">Projects</h1>
-      <p className="text-muted-foreground mb-8">
-        A selection of work I've contributed to.
-      </p>
+    <>
+      <Seo title="Projects" description="A selection of projects and work I've contributed to." />
+      <div className="container-prose py-16 md:py-24">
+        <h1 className="mb-2">Projects</h1>
+        <p className="text-muted-foreground mb-8">
+          A selection of work I've contributed to.
+        </p>
 
       {/* Tag Filter */}
       {allTags.length > 0 && (
@@ -128,6 +131,7 @@ export default function ProjectsPage() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

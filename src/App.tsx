@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { Layout } from "@/components/layout/Layout";
+import { Favicon } from "@/components/seo";
 
 // Pages
 import HomePage from "./pages/HomePage";
@@ -22,6 +23,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <SettingsProvider>
+        <Favicon />
         <Toaster />
         <Sonner />
         <BrowserRouter>
