@@ -9,6 +9,7 @@ import type {
   WritingItem,
   AuthTokens,
   AdminUser,
+  AnalyticsSummary,
   SiteSettingsInput,
   HomeLayoutInput,
   ProjectInput,
@@ -75,4 +76,7 @@ export class HttpDataClient implements DataClient {
   adminCreateWritingItem(categoryId: string, data: WritingItemInput): Promise<WritingItem> { return this.request<WritingItem>(`/admin/writing/categories/${categoryId}/items`, { method: 'POST', body: JSON.stringify(data) }); }
   adminUpdateWritingItem(id: string, data: Partial<WritingItemInput>): Promise<WritingItem> { return this.request<WritingItem>(`/admin/writing/items/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
   async adminDeleteWritingItem(id: string): Promise<void> { await this.request<void>(`/admin/writing/items/${id}`, { method: 'DELETE' }); }
+
+  // Admin analytics
+  adminGetAnalytics(days = 30): Promise<AnalyticsSummary> { return this.request<AnalyticsSummary>(`/admin/analytics?days=${days}`); }
 }

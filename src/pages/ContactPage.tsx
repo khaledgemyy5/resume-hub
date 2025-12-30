@@ -1,8 +1,11 @@
 import { useSettings } from '@/contexts/SettingsContext';
 import { Seo } from '@/components/seo';
+import { usePageView, useAnalytics } from '@/hooks/use-analytics';
 import { Mail, Linkedin, Calendar, ExternalLink } from 'lucide-react';
 
 export default function ContactPage() {
+  usePageView('contact');
+  const { track } = useAnalytics();
   const { settings } = useSettings();
   const socialLinks = settings?.socialLinks ?? {};
 
@@ -21,6 +24,7 @@ export default function ContactPage() {
           {/* Email */}
           <a
             href={`mailto:${settings?.ownerEmail ?? 'hello@example.com'}`}
+            onClick={() => track('contact_click', { metadata: { type: 'email' } })}
             className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-foreground/30 transition-colors group"
           >
             <Mail size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -36,6 +40,7 @@ export default function ContactPage() {
               href={socialLinks.linkedin}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('contact_click', { metadata: { type: 'linkedin' } })}
               className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-foreground/30 transition-colors group"
             >
               <Linkedin size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -52,6 +57,7 @@ export default function ContactPage() {
               href={settings.calendarUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('contact_click', { metadata: { type: 'calendar' } })}
               className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-foreground/30 transition-colors group"
             >
               <Calendar size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
