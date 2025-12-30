@@ -17,6 +17,9 @@ import type {
   LoginCredentials,
   ThemeTokens,
   NavItem,
+  SeoDefaults,
+  ExternalLink,
+  ResumeData,
 } from './types';
 import type {
   SiteSettingsInput,
@@ -158,6 +161,9 @@ export type {
   LoginCredentials,
   ThemeTokens,
   NavItem,
+  SeoDefaults,
+  ExternalLink,
+  ResumeData,
 };
 
 // Re-export input types from schemas

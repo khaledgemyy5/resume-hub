@@ -25,12 +25,42 @@ export interface NavItem {
   order: number;
 }
 
+export interface SeoDefaults {
+  title: string;
+  description: string;
+  ogImage?: string;
+}
+
+export interface ExternalLink {
+  id: string;
+  label: string;
+  url: string;
+  icon?: string;
+}
+
+export interface ResumeData {
+  experience: {
+    title: string;
+    company: string;
+    period: string;
+    description: string;
+  }[];
+  skills: string[];
+  education: {
+    degree: string;
+    institution: string;
+    period: string;
+  }[];
+  certifications?: string[];
+}
+
 export interface SiteSettings {
   id: string;
   siteName: string;
   siteDescription: string;
   ownerName: string;
   ownerEmail: string;
+  ownerTitle?: string;
   socialLinks: {
     github?: string;
     linkedin?: string;
@@ -38,6 +68,13 @@ export interface SiteSettings {
   };
   theme: ThemeTokens;
   navigation: NavItem[];
+  seoDefaults?: SeoDefaults;
+  faviconUrl?: string;
+  appleTouchIconUrl?: string;
+  resumePdfUrl?: string;
+  resumeData?: ResumeData;
+  calendarUrl?: string;
+  externalLinks?: ExternalLink[];
   createdAt: string;
   updatedAt: string;
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { dataClient } from '@/data';
 import type { HomeLayout, HomeLayoutSection } from '@/data/types';
+import { Seo } from '@/components/seo';
 import {
   HeroSection,
   ExperienceSection,
@@ -73,8 +74,11 @@ export default function HomePage() {
   };
 
   return (
-    <div className="container-prose py-16 md:py-24">
-      {enabledSections.map(renderSection)}
-    </div>
+    <>
+      <Seo />
+      <div className="container-prose py-16 md:py-24">
+        {enabledSections.map(renderSection)}
+      </div>
+    </>
   );
 }

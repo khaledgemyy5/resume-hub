@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { dataClient } from '@/data';
 import type { WritingData } from '@/data/types';
 import { Link } from 'react-router-dom';
+import { Seo } from '@/components/seo';
 import { ArrowRight } from 'lucide-react';
 
 export default function WritingPage() {
@@ -28,11 +29,13 @@ export default function WritingPage() {
   ) ?? [];
 
   return (
-    <div className="container-prose py-16 md:py-24">
-      <h1 className="mb-2">Writing</h1>
-      <p className="text-muted-foreground mb-12">
-        Thoughts, notes, and essays.
-      </p>
+    <>
+      <Seo title="Writing" description="Thoughts, notes, and essays." />
+      <div className="container-prose py-16 md:py-24">
+        <h1 className="mb-2">Writing</h1>
+        <p className="text-muted-foreground mb-12">
+          Thoughts, notes, and essays.
+        </p>
 
       {publishedCategories.length === 0 ? (
         <p className="text-muted-foreground">No published writing yet.</p>
@@ -69,6 +72,7 @@ export default function WritingPage() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
