@@ -14,7 +14,6 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infra/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -29,17 +28,12 @@ services:
       dockerfile: apps/api/Dockerfile
     container_name: ammar-resume-api
     restart: unless-stopped
+    env_file:
+      - apps/api/.env
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
+      NODE_ENV: ${NODE_ENV:-production}
       PORT: 3001
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/ammar_resume}
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
-      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ammar_resume}
     # Only expose to localhost for SSH tunnel access
     ports:
       - "127.0.0.1:3001:3001"
@@ -58,15 +52,34 @@ services:
     restart: unless-stopped
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
-      VITE_DATA_MODE: ${VITE_DATA_MODE:-mock}
-      VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-false}
+      VITE_DATA_MODE: ${VITE_DATA_MODE:-http}
+      VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-true}
     # Only expose to localhost for SSH tunnel access
     ports:
-      - "127.0.0.1:5173:5173"
+      - "127.0.0.1:5173:80"
     depends_on:
       - api
     networks:
       - external
+
+  # One-time seed container
+  seed:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: ammar-resume-seed
+    env_file:
+      - apps/api/.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ammar_resume}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+    command: ["sh", "-c", "npx prisma migrate deploy && npx tsx scripts/seed.ts"]
+    profiles:
+      - seed
 
 volumes:
   postgres_data:

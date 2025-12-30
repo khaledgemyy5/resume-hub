@@ -1,0 +1,179 @@
+// Prisma Schema for Ammar Resume API
+// Matches the shared type definitions
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============= Admin User =============
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admin_users")
+}
+
+// ============= Site Settings =============
+
+model SiteSettings {
+  id               String   @id @default(uuid())
+  siteName         String   @map("site_name")
+  siteDescription  String   @map("site_description")
+  ownerName        String   @map("owner_name")
+  ownerEmail       String   @map("owner_email")
+  ownerTitle       String?  @map("owner_title")
+  socialLinks      Json     @default("{}") @map("social_links")
+  theme            Json     @default("{}") @map("theme")
+  navigation       Json     @default("[]") @map("navigation")
+  seoDefaults      Json?    @map("seo_defaults")
+  faviconUrl       String?  @map("favicon_url")
+  appleTouchIconUrl String? @map("apple_touch_icon_url")
+  resumePdfUrl     String?  @map("resume_pdf_url")
+  resumeData       Json?    @map("resume_data")
+  calendarUrl      String?  @map("calendar_url")
+  externalLinks    Json?    @map("external_links")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+// ============= Home Layout =============
+
+model HomeLayout {
+  id        String   @id @default(uuid())
+  sections  Json     @default("[]")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("home_layout")
+}
+
+// ============= Projects =============
+
+model Project {
+  id                  String           @id @default(uuid())
+  slug                String           @unique
+  title               String
+  status              ProjectStatus    @default(PUBLIC)
+  featured            Boolean          @default(false)
+  tags                String[]         @default([])
+  thumbnailUrl        String?          @map("thumbnail_url")
+  startDate           String?          @map("start_date")
+  endDate             String?          @map("end_date")
+  externalUrl         String?          @map("external_url")
+  order               Int              @default(0)
+  relatedProjectSlugs String[]         @default([]) @map("related_project_slugs")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  content ProjectContent[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PUBLIC
+  CONFIDENTIAL
+  CONCEPT
+}
+
+model ProjectContent {
+  id          String      @id @default(uuid())
+  projectId   String      @map("project_id")
+  detailLevel DetailLevel @default(STANDARD) @map("detail_level")
+  headline    String
+  summary     String
+  body        String      @db.Text
+  sections    Json?
+  decisions   Json?
+  metrics     Json?
+  media       Json?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("project_content")
+}
+
+enum DetailLevel {
+  BRIEF
+  STANDARD
+  DEEP
+}
+
+// ============= Writing =============
+
+model WritingCategory {
+  id        String        @id @default(uuid())
+  slug      String        @unique
+  name      String
+  enabled   Boolean       @default(true)
+  order     Int           @default(0)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  items WritingItem[]
+
+  @@index([slug])
+  @@map("writing_categories")
+}
+
+model WritingItem {
+  id             String   @id @default(uuid())
+  categoryId     String   @map("category_id")
+  slug           String   @unique
+  title          String
+  externalUrl    String   @map("external_url")
+  platform       String?
+  featured       Boolean  @default(false)
+  enabled        Boolean  @default(true)
+  whyThisMatters String?  @map("why_this_matters")
+  order          Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  category WritingCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([slug])
+  @@map("writing_items")
+}
+
+model WritingSettings {
+  id        String @id @default("default")
+  pageTitle String @default("Selected Writing") @map("page_title")
+  pageIntro String @default("") @map("page_intro")
+
+  @@map("writing_settings")
+}
+
+// ============= Analytics =============
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  type      String
+  path      String
+  referrer  String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  @@index([type])
+  @@index([timestamp])
+  @@map("analytics_events")
+}
