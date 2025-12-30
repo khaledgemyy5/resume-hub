@@ -86,12 +86,45 @@ function createDefaultHomeLayout(): HomeLayout {
   return {
     id: generateId(),
     sections: [
-      { id: 'section-hero', type: 'hero', enabled: true, order: 0 },
-      { id: 'section-experience', type: 'experience', enabled: true, order: 1 },
+      { id: 'section-hero', type: 'hero', enabled: true, order: 0, config: {
+        name: 'Ammar',
+        title: 'Software Engineer',
+        valueProp: 'I build elegant, high-performance web applications with a focus on user experience and clean architecture.',
+      }},
+      { id: 'section-experience', type: 'experience', enabled: true, order: 1, config: {
+        items: [
+          { company: 'TechCorp', role: 'Senior Engineer', years: '2021 – Present' },
+          { company: 'StartupXYZ', role: 'Full Stack Developer', years: '2018 – 2021' },
+          { company: 'Agency Co', role: 'Frontend Developer', years: '2016 – 2018' },
+        ]
+      }},
       { id: 'section-featured', type: 'featuredProjects', enabled: true, order: 2 },
-      { id: 'section-skills', type: 'skills', enabled: false, order: 3 },
-      { id: 'section-writing', type: 'writing', enabled: false, order: 4 },
-      { id: 'section-cta', type: 'contactCta', enabled: true, order: 5 },
+      { id: 'section-how-i-work', type: 'howIWork', enabled: false, order: 3, config: {
+        items: [
+          'Start with user needs, not technical solutions',
+          'Iterate quickly with continuous feedback',
+          'Write code that reads like documentation',
+          'Automate everything that can be automated',
+          'Ship early, measure, improve',
+        ]
+      }},
+      { id: 'section-metrics', type: 'metrics', enabled: false, order: 4, config: {
+        items: [
+          { label: 'Performance Score', value: '98/100' },
+          { label: 'Test Coverage', value: '85%' },
+          { label: 'Deploy Frequency', value: 'Daily' },
+        ]
+      }},
+      { id: 'section-availability', type: 'availability', enabled: false, order: 5, config: {
+        openTo: ['Full-time roles', 'Advisory', 'Open source'],
+        focusAreas: ['Frontend Architecture', 'Design Systems', 'Performance Optimization'],
+      }},
+      { id: 'section-writing', type: 'writing', enabled: false, order: 6 },
+      { id: 'section-cta', type: 'contactCta', enabled: true, order: 7, config: {
+        email: 'hello@example.com',
+        linkedin: 'https://linkedin.com/in/ammar',
+        calendarUrl: '',
+      }},
     ],
     createdAt: timestamp,
     updatedAt: timestamp,

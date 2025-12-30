@@ -3,7 +3,7 @@
 export type ProjectStatus = 'PUBLIC' | 'CONFIDENTIAL' | 'CONCEPT';
 export type DetailLevel = 'BRIEF' | 'STANDARD' | 'DEEP';
 export type AnalyticsEventType = 'page_view' | 'project_view' | 'writing_view' | 'external_link_click' | 'contact_click';
-export type HomeLayoutSectionType = 'hero' | 'experience' | 'featuredProjects' | 'skills' | 'writing' | 'contactCta';
+export type HomeLayoutSectionType = 'hero' | 'experience' | 'featuredProjects' | 'howIWork' | 'metrics' | 'availability' | 'writing' | 'contactCta';
 
 // ============= Site Settings =============
 
@@ -49,6 +49,7 @@ export interface HomeLayoutSection {
   type: HomeLayoutSectionType;
   enabled: boolean;
   order: number;
+  titleOverride?: string;
   config?: Record<string, unknown>;
 }
 
