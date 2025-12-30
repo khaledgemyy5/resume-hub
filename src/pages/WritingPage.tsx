@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { dataClient } from '@/data';
 import type { WritingData } from '@/data/types';
 import { Seo } from '@/components/seo';
+import { usePageView, useAnalytics } from '@/hooks/use-analytics';
 import { ExternalLink } from 'lucide-react';
 
 export default function WritingPage() {
+  usePageView('writing');
+  const { track } = useAnalytics();
   const [writingData, setWritingData] = useState<WritingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showWhyMatters, setShowWhyMatters] = useState<Record<string, boolean>>({});
@@ -58,12 +61,13 @@ export default function WritingPage() {
                     .sort((a, b) => a.order - b.order)
                     .map((item) => (
                       <div key={item.id}>
-                        <div className="group flex items-center justify-between py-3 border-b border-border">
+                          <div className="group flex items-center justify-between py-3 border-b border-border">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <a
                               href={item.externalUrl}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={() => track('writing_click', { metadata: { title: item.title, url: item.externalUrl } })}
                               className="font-medium hover:text-muted-foreground transition-colors flex items-center gap-2"
                             >
                               {item.title}

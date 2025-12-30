@@ -3,6 +3,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { dataClient } from '@/data';
 import type { HomeLayout, HomeLayoutSection } from '@/data/types';
 import { Seo } from '@/components/seo';
+import { usePageView } from '@/hooks/use-analytics';
 import {
   HeroSection,
   ExperienceSection,
@@ -15,6 +16,7 @@ import {
 } from '@/components/home';
 
 export default function HomePage() {
+  usePageView('home');
   const { settings, writingData } = useSettings();
   const [homeLayout, setHomeLayout] = useState<HomeLayout | null>(null);
   const [isLoading, setIsLoading] = useState(true);

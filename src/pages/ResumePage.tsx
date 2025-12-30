@@ -1,11 +1,13 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Button } from '@/components/ui-kit';
 import { Seo } from '@/components/seo';
+import { usePageView, useAnalytics } from '@/hooks/use-analytics';
 import { Download, Copy, Check } from 'lucide-react';
-import { useState } from 'react';
 
 export default function ResumePage() {
+  usePageView('resume');
+  const { track } = useAnalytics();
   const { settings } = useSettings();
   const resumeRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
@@ -68,6 +70,7 @@ export default function ResumePage() {
 
   const handleDownloadPdf = () => {
     if (settings?.resumePdfUrl) {
+      track('resume_download');
       window.open(settings.resumePdfUrl, '_blank');
     }
   };

@@ -2,7 +2,7 @@
 
 export type ProjectStatus = 'PUBLIC' | 'CONFIDENTIAL' | 'CONCEPT';
 export type DetailLevel = 'BRIEF' | 'STANDARD' | 'DEEP';
-export type AnalyticsEventType = 'page_view' | 'project_view' | 'writing_view' | 'external_link_click' | 'contact_click';
+export type AnalyticsEventType = 'page_view' | 'project_view' | 'resume_download' | 'contact_click' | 'writing_click';
 export type HomeLayoutSectionType = 'hero' | 'experience' | 'featuredProjects' | 'howIWork' | 'metrics' | 'availability' | 'writing' | 'contactCta';
 
 // ============= Site Settings =============
@@ -214,6 +214,14 @@ export interface AnalyticsEvent {
   referrer?: string;
   metadata?: Record<string, unknown>;
   timestamp: string;
+}
+
+export interface AnalyticsSummary {
+  totalViews: number;
+  topProjects: { slug: string; title: string; views: number }[];
+  resumeDownloads: number;
+  contactClicks: number;
+  writingClicks: number;
 }
 
 // ============= Auth =============

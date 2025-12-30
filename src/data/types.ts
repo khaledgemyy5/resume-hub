@@ -1,5 +1,6 @@
 // Re-export types from shared package
 export * from '../../packages/shared/src/types';
+export type { AnalyticsSummary } from '../../packages/shared/src/types';
 
 // Re-export schemas
 export {

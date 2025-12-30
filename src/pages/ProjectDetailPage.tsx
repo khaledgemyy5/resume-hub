@@ -4,6 +4,7 @@ import { dataClient } from '@/data';
 import type { Project, ProjectContent, ProjectMedia } from '@/data/types';
 import { Badge } from '@/components/ui-kit';
 import { Seo } from '@/components/seo';
+import { useAnalytics } from '@/hooks/use-analytics';
 import { ArrowLeft, ExternalLink, AlertTriangle } from 'lucide-react';
 
 interface SectionProps {
@@ -144,15 +145,20 @@ export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { track } = useAnalytics();
 
   useEffect(() => {
     if (slug) {
       dataClient.getProjectBySlug(slug).then((data) => {
         setProject(data);
         setIsLoading(false);
+        // Track project view after loading
+        if (data) {
+          track('project_view', { metadata: { slug: data.slug, title: data.title } });
+        }
       });
     }
-  }, [slug]);
+  }, [slug, track]);
 
   if (isLoading) {
     return (

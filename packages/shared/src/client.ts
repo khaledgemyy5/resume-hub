@@ -12,6 +12,7 @@ import type {
   WritingCategory,
   WritingItem,
   AnalyticsEvent,
+  AnalyticsSummary,
   AdminUser,
   AuthTokens,
   LoginCredentials,
@@ -139,6 +140,11 @@ export interface DataClient {
   
   /** Delete a writing item (admin) */
   adminDeleteWritingItem(id: string): Promise<void>;
+
+  // ============= Admin Analytics Methods =============
+  
+  /** Get analytics summary for the last N days (admin) */
+  adminGetAnalytics(days?: number): Promise<AnalyticsSummary>;
 }
 
 // Re-export types for convenience
@@ -155,7 +161,7 @@ export type {
   WritingData,
   WritingCategory,
   WritingItem,
-  AnalyticsEvent,
+  AnalyticsSummary,
   AdminUser,
   AuthTokens,
   LoginCredentials,

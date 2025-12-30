@@ -11,6 +11,8 @@ import type {
   WritingItem,
   AdminUser,
   AuthTokens,
+  AnalyticsEvent,
+  AnalyticsSummary,
   SiteSettingsInput,
   HomeLayoutInput,
   ProjectInput,
@@ -663,5 +665,47 @@ export class MockDataClient implements DataClient {
         return;
       }
     }
+  }
+
+  async adminGetAnalytics(days = 30): Promise<AnalyticsSummary> {
+    const events = getFromStorage<AnalyticsEvent[]>(KEYS.events) || [];
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const recentEvents = events.filter(e => new Date(e.timestamp) >= cutoff);
+
+    // Count page views
+    const totalViews = recentEvents.filter(e => e.type === 'page_view').length;
+
+    // Count project views and aggregate by slug
+    const projectViews: Record<string, number> = {};
+    recentEvents
+      .filter(e => e.type === 'project_view')
+      .forEach(e => {
+        const slug = (e.metadata?.slug as string) || 'unknown';
+        projectViews[slug] = (projectViews[slug] || 0) + 1;
+      });
+
+    // Get project titles
+    const projects = getFromStorage<Project[]>(KEYS.projects) || [];
+    const topProjects = Object.entries(projectViews)
+      .map(([slug, views]) => {
+        const project = projects.find(p => p.slug === slug);
+        return { slug, title: project?.title || slug, views };
+      })
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5);
+
+    // Count specific events
+    const resumeDownloads = recentEvents.filter(e => e.type === 'resume_download').length;
+    const contactClicks = recentEvents.filter(e => e.type === 'contact_click').length;
+    const writingClicks = recentEvents.filter(e => e.type === 'writing_click').length;
+
+    return {
+      totalViews,
+      topProjects,
+      resumeDownloads,
+      contactClicks,
+      writingClicks,
+    };
   }
 }

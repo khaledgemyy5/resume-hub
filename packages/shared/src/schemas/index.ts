@@ -7,15 +7,17 @@ export const detailLevelSchema = z.enum(['BRIEF', 'STANDARD', 'DEEP']);
 export const analyticsEventTypeSchema = z.enum([
   'page_view',
   'project_view',
-  'writing_view',
-  'external_link_click',
+  'resume_download',
   'contact_click',
+  'writing_click',
 ]);
 export const homeLayoutSectionTypeSchema = z.enum([
   'hero',
   'experience',
   'featuredProjects',
-  'skills',
+  'howIWork',
+  'metrics',
+  'availability',
   'writing',
   'contactCta',
 ]);
@@ -40,6 +42,41 @@ export const navItemSchema = z.object({
   order: z.number().int().min(0),
 });
 
+// ============= SEO & Links =============
+
+export const seoDefaultsSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(300),
+  ogImage: z.string().url().optional(),
+});
+
+export const externalLinkSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1).max(50),
+  url: z.string().url(),
+  icon: z.string().optional(),
+});
+
+export const resumeExperienceSchema = z.object({
+  title: z.string().min(1).max(100),
+  company: z.string().min(1).max(100),
+  period: z.string().min(1).max(50),
+  description: z.string().max(500),
+});
+
+export const resumeEducationSchema = z.object({
+  degree: z.string().min(1).max(100),
+  institution: z.string().min(1).max(100),
+  period: z.string().min(1).max(50),
+});
+
+export const resumeDataSchema = z.object({
+  experience: z.array(resumeExperienceSchema),
+  skills: z.array(z.string().max(50)),
+  education: z.array(resumeEducationSchema),
+  certifications: z.array(z.string().max(100)).optional(),
+});
+
 // ============= Site Settings =============
 
 export const siteSettingsSchema = z.object({
@@ -48,6 +85,7 @@ export const siteSettingsSchema = z.object({
   siteDescription: z.string().max(500),
   ownerName: z.string().min(1).max(100),
   ownerEmail: z.string().email(),
+  ownerTitle: z.string().max(100).optional(),
   socialLinks: z.object({
     github: z.string().url().optional(),
     linkedin: z.string().url().optional(),
@@ -55,6 +93,13 @@ export const siteSettingsSchema = z.object({
   }),
   theme: themeTokensSchema,
   navigation: z.array(navItemSchema),
+  seoDefaults: seoDefaultsSchema.optional(),
+  faviconUrl: z.string().optional(),
+  appleTouchIconUrl: z.string().optional(),
+  resumePdfUrl: z.string().optional(),
+  resumeData: resumeDataSchema.optional(),
+  calendarUrl: z.string().url().optional(),
+  externalLinks: z.array(externalLinkSchema).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -72,6 +117,7 @@ export const homeLayoutSectionSchema = z.object({
   type: homeLayoutSectionTypeSchema,
   enabled: z.boolean(),
   order: z.number().int().min(0),
+  titleOverride: z.string().max(100).optional(),
   config: z.record(z.unknown()).optional(),
 });
 
