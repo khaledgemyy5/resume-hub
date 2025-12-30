@@ -62,6 +62,41 @@ export interface HomeLayout {
 
 // ============= Projects =============
 
+export type MediaType = 'image' | 'video';
+
+export interface ProjectMedia {
+  id: string;
+  type: MediaType;
+  url: string;
+  caption: string;
+  order: number;
+}
+
+export interface ProjectDecision {
+  id: string;
+  decision: string;
+  tradeoff: string;
+  outcome: string;
+}
+
+export interface ProjectMetric {
+  label: string;
+  value: string;
+}
+
+export interface ProjectSections {
+  overview?: string;
+  context?: string;
+  problem?: string;
+  role?: string;
+  constraints?: string;
+  approach?: string;
+  execution?: string;
+  impact?: string;
+  learnings?: string;
+  links?: string;
+}
+
 export interface ProjectContent {
   id: string;
   projectId: string;
@@ -69,6 +104,10 @@ export interface ProjectContent {
   headline: string;
   summary: string;
   body: string;
+  sections?: ProjectSections;
+  decisions?: ProjectDecision[];
+  metrics?: ProjectMetric[];
+  media?: ProjectMedia[];
   createdAt: string;
   updatedAt: string;
 }
@@ -86,6 +125,7 @@ export interface Project {
   externalUrl?: string;
   order: number;
   content: ProjectContent[];
+  relatedProjectSlugs?: string[];
   createdAt: string;
   updatedAt: string;
 }

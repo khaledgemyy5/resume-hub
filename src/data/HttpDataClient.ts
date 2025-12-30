@@ -33,7 +33,8 @@ export class HttpDataClient implements DataClient {
   // Public methods
   getPublicSettings(): Promise<SiteSettings> { return this.request<SiteSettings>('/settings'); }
   getHomeLayout(): Promise<HomeLayout> { return this.request<HomeLayout>('/home-layout'); }
-  getPublishedProjects(): Promise<Project[]> { return this.request<Project[]>('/projects'); }
+  getPublishedProjects(): Promise<Project[]> { return this.request<Project[]>('/projects?status=public'); }
+  getVisibleProjects(): Promise<Project[]> { return this.request<Project[]>('/projects'); }
   getProjectBySlug(slug: string): Promise<Project | null> { return this.request<Project | null>(`/projects/${slug}`); }
   getWritingData(): Promise<WritingData> { return this.request<WritingData>('/writing'); }
   async trackEvent(event: TrackEventInput): Promise<void> { await this.request<void>('/events', { method: 'POST', body: JSON.stringify(event) }); }

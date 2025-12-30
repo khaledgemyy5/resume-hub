@@ -4,6 +4,10 @@ import type {
   HomeLayoutSection,
   Project,
   ProjectContent,
+  ProjectMedia,
+  ProjectDecision,
+  ProjectMetric,
+  ProjectSections,
   WritingData,
   WritingCategory,
   WritingItem,
@@ -38,7 +42,10 @@ export interface DataClient {
   /** Get all published (public status) projects */
   getPublishedProjects(): Promise<Project[]>;
   
-  /** Get a single project by slug */
+  /** Get all visible projects (public + confidential, excludes concepts) */
+  getVisibleProjects(): Promise<Project[]>;
+  
+  /** Get a single project by slug (public or confidential) */
   getProjectBySlug(slug: string): Promise<Project | null>;
   
   /** Get all writing data (categories with items) */
@@ -138,6 +145,10 @@ export type {
   HomeLayoutSection,
   Project,
   ProjectContent,
+  ProjectMedia,
+  ProjectDecision,
+  ProjectMetric,
+  ProjectSections,
   WritingData,
   WritingCategory,
   WritingItem,
