@@ -174,10 +174,11 @@ export interface WritingItem {
   categoryId: string;
   slug: string;
   title: string;
-  excerpt: string;
-  body: string;
-  published: boolean;
-  publishedAt?: string;
+  externalUrl: string;
+  platform?: string;
+  featured: boolean;
+  enabled: boolean;
+  whyThisMatters?: string;
   order: number;
   createdAt: string;
   updatedAt: string;
@@ -187,14 +188,20 @@ export interface WritingCategory {
   id: string;
   slug: string;
   name: string;
-  description?: string;
+  enabled: boolean;
   order: number;
   items: WritingItem[];
   createdAt: string;
   updatedAt: string;
 }
 
+export interface WritingSettings {
+  pageTitle: string;
+  pageIntro: string;
+}
+
 export interface WritingData {
+  settings: WritingSettings;
   categories: WritingCategory[];
 }
 

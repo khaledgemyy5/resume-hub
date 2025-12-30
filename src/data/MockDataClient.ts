@@ -280,6 +280,93 @@ function createDemoProjects(): Project[] {
   ];
 }
 
+function createDefaultWritingData(): WritingData {
+  const timestamp = now();
+  return {
+    settings: {
+      pageTitle: 'Selected Writing',
+      pageIntro: 'Articles, essays, and notes I\'ve published elsewhere.',
+    },
+    categories: [
+      {
+        id: generateId(),
+        slug: 'articles',
+        name: 'Articles',
+        enabled: true,
+        order: 0,
+        items: [
+          {
+            id: generateId(),
+            categoryId: '',
+            slug: 'design-systems-at-scale',
+            title: 'Building Design Systems at Scale',
+            externalUrl: 'https://medium.com/@ammar/design-systems',
+            platform: 'Medium',
+            featured: true,
+            enabled: true,
+            whyThisMatters: 'A deep dive into maintaining consistency across multiple products.',
+            order: 0,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          },
+          {
+            id: generateId(),
+            categoryId: '',
+            slug: 'typescript-patterns',
+            title: 'Advanced TypeScript Patterns',
+            externalUrl: 'https://dev.to/ammar/typescript-patterns',
+            platform: 'Dev.to',
+            featured: true,
+            enabled: true,
+            order: 1,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          },
+          {
+            id: generateId(),
+            categoryId: '',
+            slug: 'performance-optimization',
+            title: 'Frontend Performance Optimization',
+            externalUrl: 'https://blog.example.com/performance',
+            featured: false,
+            enabled: true,
+            order: 2,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          },
+        ],
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+      {
+        id: generateId(),
+        slug: 'talks',
+        name: 'Talks & Podcasts',
+        enabled: true,
+        order: 1,
+        items: [
+          {
+            id: generateId(),
+            categoryId: '',
+            slug: 'react-conf-talk',
+            title: 'Component Architecture Best Practices',
+            externalUrl: 'https://youtube.com/watch?v=example',
+            platform: 'React Conf 2023',
+            featured: true,
+            enabled: true,
+            whyThisMatters: 'My talk on scalable component patterns.',
+            order: 0,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          },
+        ],
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+    ],
+  };
+}
+
 export class MockDataClient implements DataClient {
   private initialized = false;
 
@@ -292,7 +379,7 @@ export class MockDataClient implements DataClient {
     if (!getFromStorage(KEYS.settings)) setToStorage(KEYS.settings, createDefaultSettings());
     if (!getFromStorage(KEYS.homeLayout)) setToStorage(KEYS.homeLayout, createDefaultHomeLayout());
     if (!getFromStorage(KEYS.projects)) setToStorage(KEYS.projects, createDemoProjects());
-    if (!getFromStorage(KEYS.writing)) setToStorage(KEYS.writing, { categories: [] });
+    if (!getFromStorage(KEYS.writing)) setToStorage(KEYS.writing, createDefaultWritingData());
     this.initialized = true;
   }
 
@@ -323,7 +410,13 @@ export class MockDataClient implements DataClient {
   }
 
   async getWritingData(): Promise<WritingData> {
-    return getFromStorage<WritingData>(KEYS.writing) || { categories: [] };
+    const data = getFromStorage<WritingData>(KEYS.writing);
+    if (!data) return createDefaultWritingData();
+    // Ensure settings exists for backwards compatibility
+    if (!data.settings) {
+      data.settings = { pageTitle: 'Selected Writing', pageIntro: 'Articles, essays, and notes.' };
+    }
+    return data;
   }
 
   async trackEvent(event: TrackEventInput): Promise<void> {
@@ -494,7 +587,7 @@ export class MockDataClient implements DataClient {
       id: generateId(),
       slug: data.slug,
       name: data.name,
-      description: data.description,
+      enabled: data.enabled ?? true,
       order: data.order,
       items: [],
       createdAt: timestamp,
@@ -530,10 +623,11 @@ export class MockDataClient implements DataClient {
       categoryId: data.categoryId,
       slug: data.slug,
       title: data.title,
-      excerpt: data.excerpt,
-      body: data.body,
-      published: data.published,
-      publishedAt: data.publishedAt,
+      externalUrl: data.externalUrl,
+      platform: data.platform,
+      featured: data.featured ?? false,
+      enabled: data.enabled ?? true,
+      whyThisMatters: data.whyThisMatters,
       order: data.order,
       createdAt: timestamp,
       updatedAt: timestamp,
