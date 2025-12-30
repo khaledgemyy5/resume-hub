@@ -135,6 +135,7 @@ function createDemoProjects(): Project[] {
   const timestamp = now();
   const id1 = generateId();
   const id2 = generateId();
+  const id3 = generateId();
   return [
     {
       id: id1,
@@ -142,15 +143,35 @@ function createDemoProjects(): Project[] {
       title: 'Personal Portfolio Website',
       status: 'PUBLIC',
       featured: true,
-      tags: ['React', 'TypeScript', 'Tailwind'],
+      tags: ['React', 'TypeScript', 'Tailwind', 'Performance'],
       order: 0,
+      relatedProjectSlugs: ['design-system'],
       content: [{
         id: generateId(),
         projectId: id1,
         detailLevel: 'STANDARD',
         headline: 'A minimalist portfolio built with modern web technologies',
         summary: 'Designed and developed a personal portfolio to showcase projects and experience.',
-        body: '## Overview\n\nThis portfolio site was built with a focus on performance, accessibility, and clean design.',
+        body: '',
+        sections: {
+          overview: 'A personal portfolio website focused on performance, accessibility, and clean design. Built to showcase projects and professional experience in a minimalist, text-first format.',
+          context: 'As a developer, having a polished online presence is essential. Most portfolio templates were either too flashy or lacked the customization I needed.',
+          problem: 'Needed a fast, accessible, and easily maintainable portfolio that could grow with my career while maintaining a consistent design language.',
+          role: 'Sole developer and designer. Responsible for all aspects from conception to deployment.',
+          approach: 'Started with a mobile-first design approach, focusing on typography and whitespace. Chose React + TypeScript for type safety and Tailwind for rapid styling. Implemented a modular component system for easy content updates.',
+          execution: 'Built incrementally over 3 weeks. Started with core layout, then added project showcase, then resume section. Used GitHub Actions for CI/CD to Vercel.',
+          impact: 'Site loads in under 1 second on 3G. Lighthouse score of 98+. Has generated multiple interview opportunities.',
+          learnings: 'Simplicity wins. Resisted the urge to add animations and effects. Focused on content and readability instead.',
+        },
+        decisions: [
+          { id: generateId(), decision: 'Use Tailwind CSS over styled-components', tradeoff: 'Less encapsulation but faster development', outcome: 'Reduced styling time by 50%' },
+          { id: generateId(), decision: 'No images by default', tradeoff: 'Less visual appeal but faster loads', outcome: 'Perfect lighthouse performance score' },
+        ],
+        metrics: [
+          { label: 'Lighthouse Performance', value: '98/100' },
+          { label: 'Time to Interactive', value: '<1s' },
+          { label: 'Bundle Size', value: '<100KB' },
+        ],
         createdAt: timestamp,
         updatedAt: timestamp,
       }],
@@ -160,18 +181,71 @@ function createDemoProjects(): Project[] {
     {
       id: id2,
       slug: 'internal-tool',
-      title: 'Enterprise Dashboard (Confidential)',
+      title: 'Enterprise Analytics Dashboard',
       status: 'CONFIDENTIAL',
       featured: false,
-      tags: ['React', 'Node.js', 'PostgreSQL'],
+      tags: ['React', 'Node.js', 'PostgreSQL', 'Data Viz'],
       order: 1,
       content: [{
         id: generateId(),
         projectId: id2,
         detailLevel: 'BRIEF',
         headline: 'Internal analytics dashboard for enterprise client',
-        summary: 'Built a comprehensive analytics dashboard handling millions of data points.',
-        body: '## Note\n\nThis project is confidential. General details only.',
+        summary: 'Built a comprehensive analytics dashboard handling millions of data points daily.',
+        body: '',
+        sections: {
+          overview: 'A real-time analytics dashboard for a Fortune 500 company, processing and visualizing millions of data points daily.',
+          role: 'Lead frontend developer in a team of 5. Architected the data visualization layer.',
+          impact: 'Reduced report generation time from hours to seconds. Now used by 200+ analysts daily.',
+        },
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }],
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    },
+    {
+      id: id3,
+      slug: 'design-system',
+      title: 'Component Design System',
+      status: 'PUBLIC',
+      featured: true,
+      tags: ['React', 'Storybook', 'Design Systems', 'TypeScript'],
+      order: 2,
+      relatedProjectSlugs: ['portfolio-site'],
+      content: [{
+        id: generateId(),
+        projectId: id3,
+        detailLevel: 'DEEP',
+        headline: 'A scalable design system powering multiple products',
+        summary: 'Created a comprehensive design system with 50+ components used across 4 products.',
+        body: '',
+        sections: {
+          overview: 'A comprehensive design system built from the ground up, featuring 50+ components, detailed documentation, and a robust theming system.',
+          context: 'The company had 4 products with inconsistent UIs. Each team was building their own components, leading to duplicated effort and poor user experience.',
+          problem: 'Needed a unified component library that would work across all products while allowing for product-specific theming.',
+          role: 'Design system lead. Worked with designers to establish patterns and with product teams to ensure adoption.',
+          constraints: 'Had to support 3 different React versions across products. Needed to maintain backward compatibility.',
+          approach: 'Started with an audit of existing components across all products. Identified common patterns and created a priority list. Built components incrementally, starting with primitives.',
+          execution: 'Released in phases over 6 months. Each phase included migration guides and team training sessions.',
+          impact: 'Reduced UI development time by 40%. Improved design consistency score from 60% to 95%. Now the foundation for all new products.',
+          learnings: 'Documentation is as important as the code. Invested heavily in Storybook stories and usage guidelines.',
+          links: 'Storybook: https://storybook.example.com',
+        },
+        decisions: [
+          { id: generateId(), decision: 'Use composition over configuration', tradeoff: 'More verbose usage but more flexible', outcome: 'Teams could build custom variants easily' },
+          { id: generateId(), decision: 'Ship unstyled primitives first', tradeoff: 'Teams had to style initially', outcome: 'Faster adoption, better long-term flexibility' },
+          { id: generateId(), decision: 'Semantic versioning with changelogs', tradeoff: 'More release overhead', outcome: 'Zero breaking-change incidents post-adoption' },
+        ],
+        metrics: [
+          { label: 'Components', value: '50+' },
+          { label: 'Products Using', value: '4' },
+          { label: 'Dev Time Saved', value: '40%' },
+          { label: 'Consistency Score', value: '95%' },
+        ],
+        media: [
+          { id: generateId(), type: 'image', url: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800', caption: 'Component architecture diagram', order: 0 },
+        ],
         createdAt: timestamp,
         updatedAt: timestamp,
       }],
@@ -210,9 +284,17 @@ export class MockDataClient implements DataClient {
     return projects.filter((p) => p.status === 'PUBLIC');
   }
 
+  async getVisibleProjects(): Promise<Project[]> {
+    const projects = getFromStorage<Project[]>(KEYS.projects) || [];
+    return projects.filter((p) => p.status !== 'CONCEPT');
+  }
+
   async getProjectBySlug(slug: string): Promise<Project | null> {
     const projects = getFromStorage<Project[]>(KEYS.projects) || [];
-    return projects.find((p) => p.slug === slug) || null;
+    const project = projects.find((p) => p.slug === slug);
+    // Only return if it's visible (not a concept)
+    if (project && project.status !== 'CONCEPT') return project;
+    return null;
   }
 
   async getWritingData(): Promise<WritingData> {
