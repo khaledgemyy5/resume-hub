@@ -6,11 +6,12 @@ services:
     container_name: ammar-resume-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ammar_resume
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-ammar_resume}
+    # Only expose to localhost, not publicly
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -19,6 +20,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - internal
 
   api:
     build:
@@ -27,19 +30,25 @@ services:
     container_name: ammar-resume-api
     restart: unless-stopped
     environment:
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ammar_resume
-      JWT_SECRET: dev-secret-change-in-production
-      CORS_ORIGIN: http://localhost:5173
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/ammar_resume}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+    # Only expose to localhost for SSH tunnel access
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./apps/api/src:/app/src:ro
-    command: npm run dev
+    networks:
+      - internal
+      - external
 
   web:
     build:
@@ -48,18 +57,23 @@ services:
     container_name: ammar-resume-web
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://localhost:3001
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+      VITE_DATA_MODE: ${VITE_DATA_MODE:-mock}
+      VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-false}
+    # Only expose to localhost for SSH tunnel access
     ports:
-      - "5173:5173"
+      - "127.0.0.1:5173:5173"
     depends_on:
       - api
-    volumes:
-      - ./apps/web/src:/app/src:ro
-    command: npm run dev
+    networks:
+      - external
 
 volumes:
   postgres_data:
 
 networks:
-  default:
-    name: ammar-resume-network
+  internal:
+    name: ammar-resume-internal
+    internal: true
+  external:
+    name: ammar-resume-external
