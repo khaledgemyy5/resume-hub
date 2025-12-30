@@ -12,10 +12,10 @@ export function Header() {
     .filter((item) => item.enabled)
     .filter((item) => {
       if (item.href === '/writing') {
-        const hasPublishedWriting = writingData?.categories.some(
-          (cat) => cat.items.some((item) => item.published)
+        const hasEnabledWriting = writingData?.categories.some(
+          (cat) => cat.enabled && cat.items.some((i) => i.enabled)
         );
-        return hasPublishedWriting;
+        return hasEnabledWriting;
       }
       return true;
     })

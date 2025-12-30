@@ -138,10 +138,11 @@ export const writingItemSchema = z.object({
   categoryId: z.string().min(1),
   slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
   title: z.string().min(1).max(200),
-  excerpt: z.string().max(500),
-  body: z.string(),
-  published: z.boolean(),
-  publishedAt: z.string().optional(),
+  externalUrl: z.string().url(),
+  platform: z.string().max(100).optional(),
+  featured: z.boolean(),
+  enabled: z.boolean(),
+  whyThisMatters: z.string().max(500).optional(),
   order: z.number().int().min(0),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -159,7 +160,7 @@ export const writingCategorySchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
   name: z.string().min(1).max(100),
-  description: z.string().max(500).optional(),
+  enabled: z.boolean(),
   order: z.number().int().min(0),
   items: z.array(writingItemSchema),
   createdAt: z.string(),
@@ -173,9 +174,17 @@ export const writingCategoryInputSchema = writingCategorySchema.omit({
   updatedAt: true,
 });
 
+// ============= Writing Settings =============
+
+export const writingSettingsSchema = z.object({
+  pageTitle: z.string().min(1).max(100),
+  pageIntro: z.string().max(500),
+});
+
 // ============= Writing Data =============
 
 export const writingDataSchema = z.object({
+  settings: writingSettingsSchema,
   categories: z.array(writingCategorySchema),
 });
 
