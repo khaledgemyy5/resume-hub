@@ -1,0 +1,165 @@
+# =============================================================================
+# Database Migrations
+# =============================================================================
+# Safely runs Prisma migrations against the target environment
+# IMPORTANT: This workflow requires manual approval for production
+# =============================================================================
+
+name: Database Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      action:
+        description: 'Migration action'
+        required: true
+        default: 'status'
+        type: choice
+        options:
+          - status     # Check migration status (safe)
+          - deploy     # Apply pending migrations (safe for non-destructive)
+          - reset      # WARNING: Drops all data and re-applies migrations
+      confirm_destructive:
+        description: 'Type "CONFIRM" to allow destructive operations (reset)'
+        required: false
+        default: ''
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '20'
+
+jobs:
+  # Pre-flight check for production deployments
+  validate:
+    name: Validate Request
+    runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+      - name: Check destructive operation confirmation
+        id: check
+        run: |
+          if [[ "${{ inputs.action }}" == "reset" ]]; then
+            if [[ "${{ inputs.confirm_destructive }}" != "CONFIRM" ]]; then
+              echo "❌ Destructive operation requires CONFIRM input" >> $GITHUB_STEP_SUMMARY
+              echo "proceed=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            echo "⚠️ Destructive operation confirmed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "proceed=true" >> $GITHUB_OUTPUT
+
+  migrate:
+    name: Run Migration
+    needs: validate
+    if: needs.validate.outputs.proceed == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          pnpm install --frozen-lockfile
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database URL from Secrets Manager
+        id: secrets
+        run: |
+          DATABASE_URL=$(aws secretsmanager get-secret-value \
+            --secret-id ${{ vars.DATABASE_URL_SECRET_ID }} \
+            --query SecretString \
+            --output text)
+          echo "::add-mask::$DATABASE_URL"
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+
+      - name: Check migration status
+        if: inputs.action == 'status'
+        run: |
+          cd apps/api
+          npx prisma migrate status
+          
+          echo "## Migration Status 📋" >> $GITHUB_STEP_SUMMARY
+          npx prisma migrate status >> $GITHUB_STEP_SUMMARY 2>&1 || true
+
+      - name: Deploy migrations
+        if: inputs.action == 'deploy'
+        run: |
+          cd apps/api
+          
+          echo "## Pre-deployment Status" >> $GITHUB_STEP_SUMMARY
+          npx prisma migrate status >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Applying Migrations..." >> $GITHUB_STEP_SUMMARY
+          
+          npx prisma migrate deploy
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Migrations Applied Successfully" >> $GITHUB_STEP_SUMMARY
+
+      - name: Reset database (DESTRUCTIVE)
+        if: inputs.action == 'reset'
+        run: |
+          cd apps/api
+          
+          echo "## ⚠️ DESTRUCTIVE OPERATION: Database Reset" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Environment: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Create backup snapshot before reset (production only)
+          if [[ "${{ inputs.environment }}" == "prod" ]]; then
+            echo "Creating backup snapshot..." >> $GITHUB_STEP_SUMMARY
+            SNAPSHOT_ID="pre-reset-$(date +%Y%m%d-%H%M%S)"
+            aws rds create-db-snapshot \
+              --db-instance-identifier ${{ vars.RDS_INSTANCE_ID }} \
+              --db-snapshot-identifier $SNAPSHOT_ID || true
+            echo "Backup snapshot: $SNAPSHOT_ID" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          npx prisma migrate reset --force
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Database Reset Complete" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run seed (after reset only)
+        if: inputs.action == 'reset'
+        run: |
+          cd apps/api
+          pnpm run seed
+          echo "✅ Seed data applied" >> $GITHUB_STEP_SUMMARY
+        env:
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
